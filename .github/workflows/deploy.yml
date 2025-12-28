@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build
-        run: pnpm run build --base=/chess-llama/
+        run: pnpm run build --base=/chess-fpt/
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact

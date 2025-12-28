@@ -88,27 +88,28 @@ function check(): boolean | "white" | "black" {
 }
 
 async function llamaMove() {
-  const dests = getValidMap(chess);
-  const move = await playLlama(moves, dests);
+  const move = await playLlama(moves, chess);
   console.log(move);
-  moves.push(move);
-  let oppMove = chess.move(move);
+  const oppMove = chess.move(move);
+  if (oppMove) {
+    moves.push(oppMove.san);
 
-  movesRowBuilder(oppMove);
+    movesRowBuilder(oppMove);
 
-  cg.set({
-    fen: chess.fen(),
-    movable: {
-      color: player,
-      free: false,
-      dests: getValidMap(chess)
-    },
-    turnColor: player,
-    check: check()
-  });
+    cg.set({
+      fen: chess.fen(),
+      movable: {
+        color: player,
+        free: false,
+        dests: getValidMap(chess)
+      },
+      turnColor: player,
+      check: check()
+    });
 
-  if (chess.isGameOver()) {
-    showResult(chess);
+    if (chess.isGameOver()) {
+      showResult(chess);
+    }
   }
 }
 
@@ -126,11 +127,10 @@ const cg = Chessground(document.getElementById("app")!, {
         if (isPromotion(dest, piece!)) {
           let promotion = await showPromotionDialog();
           playerMove = chess.move({ from: orig, to: dest, promotion: promotion })
-          moves.push(orig + dest + "q");
         } else {
           playerMove = chess.move({ from: orig, to: dest })
-          moves.push(orig + dest);
         }
+        moves.push(playerMove.san);
 
         movesRowBuilder(playerMove);
 
@@ -203,12 +203,10 @@ async function initGame(playerColor: "white" | "black", state: string[]) {
   player = playerColor;
 
   if (player === "white") {
-    moves.push("0-1");
     for (let option of promotionOptions) {
       option.classList.remove("black");
     }
   } else {
-    moves.push("1-0");
     for (let option of promotionOptions) {
       option.classList.add("black");
     }
